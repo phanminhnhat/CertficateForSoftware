@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lộ Trình Tương Tác ISO 9001</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutral (Background: #F8F9FA, Text: #212529, Accent: #0D6EFD, #198754) -->
+    <!-- Application Structure Plan: A single-page application with a fixed sidebar navigation for intuitive access to key sections: Overview, Principles, Roadmap, Requirements, and Planning (Cost/Timeline). This task-oriented flow guides the user from understanding the 'what' and 'why' of ISO 9001 to the 'how', 'how much', and 'how long'. Interactive elements like clickable cards for principles, an expandable timeline for the roadmap, filterable lists for documents, and a dynamic chart for cost/time are used to make dense information digestible and engaging, which is more user-friendly than the linear structure of the source report. -->
+    <!-- Visualization & Content Choices:
+        - Report Info: 7 Core Principles -> Goal: Organize/Inform -> Viz: Interactive Cards (HTML/CSS/JS) -> Interaction: Click to reveal details -> Justification: More engaging than a static table.
+        - Report Info: 4-Stage Certification Roadmap -> Goal: Organize/Show Process -> Viz: Vertical Timeline Diagram (HTML/CSS/JS) -> Interaction: Click stage to expand details -> Justification: Visually represents the process flow and breaks down complex steps.
+        - Report Info: Mandatory/Recommended Documents -> Goal: Organize/Inform -> Viz: Filterable List (HTML/JS) -> Interaction: Buttons to filter list by category -> Justification: Allows user to easily find and focus on specific documentation requirements, superior to a long, static table.
+        - Report Info: Cost/Timeline Estimates by Company Size -> Goal: Compare/Inform -> Viz: Interactive Bar Chart (Chart.js) -> Interaction: Buttons select company size to update chart data -> Justification: Provides a clear, dynamic visual comparison of time investment based on user's context.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #F8F9FA;
+            color: #212529;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link.active, .nav-link:hover {
+            background-color: #E9ECEF;
+            color: #0D6EFD;
+            transform: translateX(4px);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .principle-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .principle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        }
+        .timeline-item .timeline-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .timeline-item.active .timeline-content {
+            max-height: 1500px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .timeline-item .icon-plus-minus::before {
+            content: '+';
+            transition: transform 0.3s ease;
+        }
+        .timeline-item.active .icon-plus-minus::before {
+            transform: rotate(45deg);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar Navigation -->
+        <nav id="sidebar" class="w-full md:w-64 bg-white shadow-lg md:fixed md:h-full p-4 md:p-6 transition-all duration-300">
+            <h1 class="text-2xl font-bold text-blue-600 mb-8">ISO 9001</h1>
+            <ul class="space-y-2">
+                <li><a href="#overview" class="nav-link block font-medium p-3 rounded-lg text-gray-700">Tổng Quan</a></li>
+                <li><a href="#principles" class="nav-link block font-medium p-3 rounded-lg text-gray-700">7 Nguyên Tắc Cốt Lõi</a></li>
+                <li><a href="#roadmap" class="nav-link block font-medium p-3 rounded-lg text-gray-700">Lộ Trình Chi Tiết</a></li>
+                <li><a href="#requirements" class="nav-link block font-medium p-3 rounded-lg text-gray-700">Yêu Cầu & Tài Liệu</a></li>
+                <li><a href="#planning" class="nav-link block font-medium p-3 rounded-lg text-gray-700">Chi Phí & Thời Gian</a></li>
+                <li><a href="#recommendations" class="nav-link block font-medium p-3 rounded-lg text-gray-700">Khuyến Nghị</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 md:ml-64 p-4 sm:p-6 md:p-10">
+            <!-- Overview Section -->
+            <section id="overview" class="content-section">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Lộ Trình Đạt Chứng Nhận ISO 9001</h2>
+                <p class="text-lg text-gray-600 mb-8 max-w-3xl">
+                    Chào mừng bạn đến với công cụ khám phá lộ trình chứng nhận ISO 9001. Ứng dụng này sẽ chuyển đổi báo cáo chi tiết thành một hướng dẫn tương tác, giúp bạn hiểu rõ các khái niệm, lợi ích và các bước cần thiết để đạt được tiêu chuẩn quản lý chất lượng hàng đầu thế giới.
+                </p>
+                
+                <div class="bg-white p-8 rounded-xl shadow-md mb-8">
+                    <h3 class="text-2xl font-semibold mb-4 text-blue-700">ISO 9001 là gì?</h3>
+                    <p class="text-gray-700 mb-4">
+                        ISO 9001 là tiêu chuẩn quốc tế cho Hệ thống Quản lý Chất lượng (QMS). Nó không phải là một bộ quy tắc cứng nhắc, mà là một khuôn khổ linh hoạt giúp tổ chức đảm bảo sản phẩm và dịch vụ của mình đáp ứng nhất quán các yêu cầu của khách hàng và quy định pháp luật. Mục tiêu cuối cùng là nâng cao sự hài lòng của khách hàng thông qua cải tiến liên tục.
+                    </p>
+                </div>
+
+                <h3 class="text-3xl font-bold text-gray-800 mb-6">Lợi Ích Chiến Lược</h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md transition hover:shadow-xl hover:-translate-y-1">
+                        <h4 class="font-bold text-xl mb-2 text-green-600">Nâng cao Hiệu quả</h4>
+                        <p class="text-gray-600">Hợp lý hóa quy trình, tối ưu hóa nguồn lực và giảm lãng phí, dẫn đến tăng năng suất đáng kể.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md transition hover:shadow-xl hover:-translate-y-1">
+                        <h4 class="font-bold text-xl mb-2 text-green-600">Tăng sự Hài lòng Khách hàng</h4>
+                        <p class="text-gray-600">Đáp ứng và vượt qua mong đợi của khách hàng, xây dựng lòng trung thành và uy tín thương hiệu.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md transition hover:shadow-xl hover:-translate-y-1">
+                        <h4 class="font-bold text-xl mb-2 text-green-600">Tiếp cận Thị trường Quốc tế</h4>
+                        <p class="text-gray-600">Chứng nhận được công nhận toàn cầu, mở ra cơ hội kinh doanh mới và lợi thế cạnh tranh.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md transition hover:shadow-xl hover:-translate-y-1">
+                        <h4 class="font-bold text-xl mb-2 text-green-600">Quản lý Rủi ro Tốt hơn</h4>
+                        <p class="text-gray-600">Tư duy dựa trên rủi ro giúp chủ động xác định và giảm thiểu các vấn đề tiềm ẩn.</p>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-md transition hover:shadow-xl hover:-translate-y-1">
+                        <h4 class="font-bold text-xl mb-2 text-green-600">Tăng tính Nhất quán</h4>
+                        <p class="text-gray-600">Các quy trình được chuẩn hóa giúp mọi người hiểu rõ nhiệm vụ, giảm sai sót và hoạt động trơn tru.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md transition hover:shadow-xl hover:-translate-y-1">
+                        <h4 class="font-bold text-xl mb-2 text-green-600">Văn hóa Cải tiến</h4>
+                        <p class="text-gray-600">Xây dựng nền tảng và văn hóa cho việc cải tiến liên tục trong toàn bộ tổ chức.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Principles Section -->
+            <section id="principles" class="content-section">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">7 Nguyên Tắc Cốt Lõi Của Quản Lý Chất Lượng</h2>
+                <p class="text-lg text-gray-600 mb-8 max-w-3xl">ISO 9001 được xây dựng dựa trên 7 nguyên tắc nền tảng. Hiểu và áp dụng các nguyên tắc này là chìa khóa để xây dựng một Hệ thống Quản lý Chất lượng thành công. Nhấp vào mỗi thẻ để khám phá.</p>
+                <div id="principles-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Principles will be injected here by JS -->
+                </div>
+            </section>
+
+            <!-- Roadmap Section -->
+            <section id="roadmap" class="content-section">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Lộ Trình Chứng Nhận Chi Tiết</h2>
+                <p class="text-lg text-gray-600 mb-8 max-w-3xl">Hành trình đạt chứng nhận ISO 9001 là một quy trình có cấu trúc gồm 4 giai đoạn chính. Hãy nhấp vào từng giai đoạn để xem các hoạt động và mục tiêu cụ thể bên trong.</p>
+                <div id="roadmap-timeline" class="relative pl-8 border-l-4 border-blue-200">
+                     <!-- Timeline items will be injected here by JS -->
+                </div>
+            </section>
+
+            <!-- Requirements Section -->
+            <section id="requirements" class="content-section">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Yêu Cầu & Thông Tin Dạng Văn Bản</h2>
+                <p class="text-lg text-gray-600 mb-8 max-w-3xl">ISO 9001 yêu cầu các tổ chức phải duy trì và lưu giữ một số "thông tin dạng văn bản" (tài liệu và hồ sơ). Dưới đây là danh sách các loại tài liệu chính. Sử dụng bộ lọc để xem các yêu cầu cụ thể.</p>
+                <div class="mb-6">
+                    <button id="filter-all" class="filter-btn bg-blue-500 text-white py-2 px-4 rounded-lg shadow font-semibold">Tất cả</button>
+                    <button id="filter-mandatory-docs" class="filter-btn bg-white text-gray-700 py-2 px-4 rounded-lg shadow font-semibold">Tài liệu Bắt buộc Duy trì</button>
+                    <button id="filter-mandatory-records" class="filter-btn bg-white text-gray-700 py-2 px-4 rounded-lg shadow font-semibold">Hồ sơ Bắt buộc Lưu giữ</button>
+                    <button id="filter-recommended" class="filter-btn bg-white text-gray-700 py-2 px-4 rounded-lg shadow font-semibold">Tài liệu Khuyến nghị</button>
+                </div>
+                <div id="documentation-list" class="space-y-4">
+                    <!-- Documentation items will be injected here by JS -->
+                </div>
+            </section>
+
+            <!-- Planning Section -->
+            <section id="planning" class="content-section">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Lập Kế Hoạch: Chi Phí & Thời Gian</h2>
+                <p class="text-lg text-gray-600 mb-8 max-w-3xl">Một trong những câu hỏi quan trọng nhất là "Sẽ mất bao lâu và tốn bao nhiêu chi phí?". Thời gian và chi phí phụ thuộc nhiều vào quy mô và mức độ sẵn sàng của công ty bạn. Tương tác với biểu đồ dưới đây để có ước tính sơ bộ.</p>
+                
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <div class="flex justify-center mb-6 space-x-2">
+                        <button id="size-small" class="size-btn bg-blue-500 text-white py-2 px-5 rounded-lg font-semibold shadow">Doanh nghiệp Nhỏ</button>
+                        <button id="size-medium" class="size-btn bg-white text-gray-700 py-2 px-5 rounded-lg font-semibold shadow">Doanh nghiệp Vừa</button>
+                        <button id="size-large" class="size-btn bg-white text-gray-700 py-2 px-5 rounded-lg font-semibold shadow">Doanh nghiệp Lớn</button>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6 text-center mb-8">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-500">Quy mô Nhân viên</h4>
+                            <p id="employee-size" class="text-2xl font-bold text-blue-600"></p>
+                        </div>
+                         <div>
+                            <h4 class="text-lg font-semibold text-gray-500">Chi phí Ước tính (Năm đầu)</h4>
+                            <p id="cost-estimate" class="text-2xl font-bold text-green-600"></p>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-500">Chi phí Duy trì (Hàng năm)</h4>
+                            <p id="maintenance-cost" class="text-2xl font-bold text-green-600"></p>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recommendations Section -->
+            <section id="recommendations" class="content-section">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Kết Luận & Khuyến Nghị</h2>
+                <p class="text-lg text-gray-600 mb-8 max-w-3xl">Đạt được chứng nhận ISO 9001 là một hành trình chiến lược. Để tối đa hóa lợi ích, hãy xem xét các khuyến nghị quan trọng sau đây.</p>
+                <div id="recommendations-accordion" class="space-y-4">
+                     <!-- Recommendations will be injected here by JS -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const principlesData = [
+        { title: "1. Hướng vào khách hàng", description: "Hiểu rõ và liên tục đáp ứng các yêu cầu của khách hàng, đồng thời nỗ lực vượt qua mong đợi của họ. Đây là nguyên tắc quan trọng nhất.", impact: "Tăng lòng trung thành, cải thiện khả năng giữ chân khách hàng, xác định các cơ hội thương mại mới." },
+        { title: "2. Sự lãnh đạo", description: "Lãnh đạo cấp cao thiết lập sự thống nhất về mục đích, định hướng và tạo ra môi trường làm việc lấy chất lượng làm trung tâm.", impact: "Cải thiện việc cung cấp sản phẩm/dịch vụ, thúc đẩy văn hóa chất lượng." },
+        { title: "3. Sự tham gia của mọi người", description: "Đảm bảo tất cả nhân viên tham gia đầy đủ, hiểu rõ mục tiêu và có trách nhiệm cá nhân trong hệ thống.", impact: "Giảm chi phí thông qua ít lãng phí hơn, cải tiến liên tục thông qua học hỏi và phát triển." },
+        { title: "4. Tiếp cận theo quá trình", description: "Quản lý các hoạt động và nguồn lực như các quy trình liên kết với nhau để đạt được kết quả mong muốn một cách hiệu quả.", impact: "Sản phẩm đầu ra chất lượng cao hơn, ít lãng phí hơn, năng suất cao hơn." },
+        { title: "5. Cải tiến", description: "Liên tục tìm kiếm cơ hội để nâng cao quy trình, sản phẩm và dịch vụ. Đây là một mục tiêu thường xuyên và chủ động.", impact: "Tối ưu hóa hoạt động, nâng cao hiệu quả, thích ứng với các yêu cầu thay đổi." },
+        { title: "6. Quyết định dựa trên bằng chứng", description: "Các quyết định hiệu quả phải dựa trên việc phân tích và đánh giá dữ liệu và thông tin thực tế.", impact: "Đảm bảo các quyết định hợp lý, giảm lãng phí, cải thiện sự hài lòng của khách hàng." },
+        { title: "7. Quản lý mối quan hệ", description: "Xây dựng và duy trì mối quan hệ cùng có lợi với các bên liên quan, đặc biệt là các nhà cung cấp.", impact: "Nâng cao năng suất, thực hành làm việc liền mạch, đảm bảo chất lượng đầu vào." }
+    ];
+
+    const roadmapData = [
+        { 
+            stage: "Giai đoạn 1: Chuẩn bị & Hoạch định Chiến lược", 
+            description: "Đây là giai đoạn nền tảng, quyết định sự thành công của toàn bộ dự án. Mục tiêu là hiểu rõ yêu cầu, xác định hiện trạng và lập kế hoạch chi tiết.",
+            activities: [
+                "<strong>Cam kết của Ban lãnh đạo:</strong> Đảm bảo sự ủng hộ tuyệt đối và phân bổ đủ nguồn lực (ngân sách, nhân sự).",
+                "<strong>Xác định Phạm vi QMS:</strong> Quyết định các quy trình, sản phẩm, dịch vụ nào sẽ được áp dụng ISO 9001.",
+                "<strong>Phân tích Khoảng cách (Gap Analysis):</strong> So sánh hệ thống hiện tại với yêu cầu của ISO 9001 để tìm ra những điểm cần cải thiện.",
+                "<strong>Xây dựng Kế hoạch Hành động:</strong> Lập kế hoạch chi tiết các bước cần làm, người chịu trách nhiệm và thời gian hoàn thành."
+            ]
+        },
+        { 
+            stage: "Giai đoạn 2: Phát triển & Triển khai QMS", 
+            description: "Giai đoạn này tập trung vào việc xây dựng và áp dụng Hệ thống Quản lý Chất lượng vào thực tế hoạt động của công ty.",
+            activities: [
+                "<strong>Thiết kế và Tài liệu hóa QMS:</strong> Xây dựng các chính sách, quy trình, hướng dẫn công việc cần thiết.",
+                "<strong>Đào tạo và Nâng cao Nhận thức:</strong> Đảm bảo tất cả nhân viên hiểu về ISO 9001, chính sách chất lượng và vai trò của họ.",
+                "<strong>Triển khai các Quy trình:</strong> Áp dụng các quy trình mới đã được tài liệu hóa vào công việc hàng ngày.",
+                "<strong>Thiết lập Năng lực Đánh giá Nội bộ:</strong> Lựa chọn và đào tạo một đội ngũ để thực hiện đánh giá nội bộ."
+            ]
+        },
+        { 
+            stage: "Giai đoạn 3: Xác minh & Chứng nhận Bên ngoài", 
+            description: "Sau khi QMS đã vận hành, giai đoạn này nhằm kiểm tra hiệu quả của hệ thống và chuẩn bị cho cuộc đánh giá chính thức từ tổ chức chứng nhận.",
+            activities: [
+                "<strong>Tiến hành Đánh giá Nội bộ:</strong> Đội ngũ đánh giá viên nội bộ kiểm tra sự tuân thủ và hiệu quả của QMS.",
+                "<strong>Thực hiện Xem xét của Lãnh đạo:</strong> Ban lãnh đạo xem xét toàn bộ hiệu suất của QMS và đưa ra các quyết định cải tiến.",
+                "<strong>Hành động Khắc phục:</strong> Giải quyết các điểm không phù hợp được phát hiện trong quá trình đánh giá nội bộ.",
+                "<strong>Đánh giá Chứng nhận Bên ngoài (Stage 1 & 2):</strong> Tổ chức chứng nhận sẽ thực hiện đánh giá (xem xét tài liệu và đánh giá tại chỗ) để cấp chứng chỉ."
+            ]
+        },
+        { 
+            stage: "Giai đoạn 4: Cải tiến Liên tục & Duy trì", 
+            description: "Nhận được chứng chỉ không phải là kết thúc, mà là sự khởi đầu của hành trình cải tiến liên tục.",
+            activities: [
+                "<strong>Đánh giá Giám sát Hàng năm:</strong> Tổ chức chứng nhận sẽ tiến hành các cuộc đánh giá giám sát định kỳ (thường là hàng năm) để đảm bảo QMS vẫn được duy trì hiệu quả.",
+                "<strong>Tái chứng nhận (Mỗi 3 năm):</strong> Chứng chỉ có hiệu lực 3 năm. Cần thực hiện một cuộc đánh giá toàn diện để gia hạn chứng nhận.",
+                "<strong>Nuôi dưỡng Văn hóa Cải tiến:</strong> Liên tục tìm kiếm cơ hội để cải thiện quy trình, sản phẩm và dịch vụ."
+            ]
+        }
+    ];
+
+    const documentationData = [
+        { type: "mandatory-docs", title: "Phạm vi của hệ thống quản lý chất lượng (4.3)", description: "Xác định ranh giới và khả năng áp dụng của QMS." },
+        { type: "mandatory-docs", title: "Chính sách chất lượng (5.2)", description: "Tuyên bố ý định và định hướng của tổ chức liên quan đến chất lượng." },
+        { type: "mandatory-docs", title: "Mục tiêu chất lượng (6.2)", description: "Các mục tiêu cụ thể, có thể đo lường được để đạt được chính sách chất lượng." },
+        { type: "mandatory-records", title: "Hồ sơ năng lực, đào tạo, kỹ năng, kinh nghiệm (7.2)", description: "Bằng chứng về năng lực của nhân viên để thực hiện công việc." },
+        { type: "mandatory-records", title: "Hồ sơ xem xét yêu cầu sản phẩm/dịch vụ (8.2.3.2)", description: "Bằng chứng về việc các yêu cầu của khách hàng đã được xem xét." },
+        { type: "mandatory-records", title: "Hồ sơ đầu vào, kiểm soát, đầu ra và thay đổi trong thiết kế & phát triển (8.3)", description: "Bằng chứng về việc quá trình thiết kế được kiểm soát." },
+        { type: "mandatory-records", title: "Hồ sơ lựa chọn nhà cung cấp (8.4.1)", description: "Bằng chứng về việc đánh giá và lựa chọn nhà cung cấp." },
+        { type: "mandatory-records", title: "Hồ sơ sự phù hợp của sản phẩm/dịch vụ (8.6)", description: "Bằng chứng về việc sản phẩm/dịch vụ đáp ứng các tiêu chí chấp nhận." },
+        { type: "mandatory-records", title: "Hồ sơ về sản phẩm không phù hợp (8.7.2)", description: "Bằng chứng về việc xử lý các sản phẩm/dịch vụ không đạt yêu cầu." },
+        { type: "mandatory-records", title: "Kết quả giám sát và đo lường (9.1.1)", description: "Dữ liệu từ việc giám sát để đánh giá hiệu suất." },
+        { type: "mandatory-records", title: "Chương trình và kết quả đánh giá nội bộ (9.2)", description: "Bằng chứng về việc thực hiện và kết quả của các cuộc đánh giá nội bộ." },
+        { type: "mandatory-records", title: "Kết quả xem xét của lãnh đạo (9.3)", description: "Biên bản và quyết định từ các cuộc họp xem xét của lãnh đạo." },
+        { type: "mandatory-records", title: "Kết quả hành động khắc phục (10.2)", description: "Bằng chứng về việc các vấn đề đã được giải quyết và ngăn chặn tái diễn." },
+        { type: "recommended", title: "Thủ tục xác định bối cảnh & các bên quan tâm", description: "Giúp tổ chức hiểu rõ môi trường hoạt động và các yếu tố ảnh hưởng." },
+        { type: "recommended", title: "Thủ tục giải quyết rủi ro & cơ hội", description: "Đảm bảo cách tiếp cận có hệ thống để quản lý rủi ro và tận dụng cơ hội." },
+        { type: "recommended", title: "Thủ tục kiểm soát tài liệu & hồ sơ", description: "Đảm bảo tính toàn vẹn và khả năng truy cập của thông tin." },
+        { type: "recommended", title: "Thủ tục thiết kế & phát triển", description: "Hướng dẫn các bước trong quá trình thiết kế để đảm bảo kiểm soát chặt chẽ." },
+    ];
+    
+    const planningData = {
+        small: { size: "1-50 nhân viên", cost: "5.000 – 10.000 USD", maintenance: "1.500 – 3.000 USD", timeline: [3, 6] },
+        medium: { size: "51-250 nhân viên", cost: "10.000 – 25.000 USD", maintenance: "3.000 – 5.000 USD", timeline: [6, 9] },
+        large: { size: "Trên 250 nhân viên", cost: "25.000+ USD", maintenance: "5.000 – 10.000 USD", timeline: [9, 12] }
+    };
+
+    const recommendationsData = [
+        { title: "Đảm bảo Cam kết Lãnh đạo Vững chắc", content: "Thành công phụ thuộc vào sự ủng hộ không ngừng của ban lãnh đạo. Điều này bao gồm việc phân bổ nguồn lực đầy đủ và tích cực tham gia vào các cuộc xem xét QMS." },
+        { title: "Tập trung vào Hiệu quả Quy trình, không chỉ Tuân thủ Tài liệu", content: "Trọng tâm chính phải là thiết kế các quy trình hiệu quả. Tránh việc tài liệu hóa quá mức và tận dụng sự linh hoạt của tiêu chuẩn để tạo ra một QMS phù hợp." },
+        { title: "Ưu tiên Đào tạo và Nâng cao Nhận thức", content: "Đầu tư vào đào tạo toàn diện cho nhân viên để đảm bảo mọi người hiểu vai trò của họ, giúp giảm thiểu sự phản kháng và tăng cường sự gắn kết." },
+        { title: "Lựa chọn Tổ chức Chứng nhận một cách Chiến lược", content: "Đừng chỉ dựa vào giá cả. Ưu tiên danh tiếng, công nhận và chuyên môn trong ngành để đảm bảo chứng nhận có giá trị và mang lại những hiểu biết quý báu." },
+        { title: "Nuôi dưỡng Văn hóa Cải tiến Liên tục", content: "Xem chứng nhận ISO 9001 là nền tảng cho sự cải tiến không ngừng. Thúc đẩy một môi trường nơi việc xác định cơ hội nâng cao là một phần của hoạt động hàng ngày." }
+    ];
+
+    // Navigation
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.content-section');
+
+    function updateActiveNav(targetId) {
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === `#${targetId}`) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+        sections.forEach(section => {
+            if (section.id === targetId) {
+                section.classList.add('active');
+            } else {
+                section.classList.remove('active');
+            }
+        });
+    }
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                // targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                 window.scrollTo({ top: targetElement.offsetTop - 20, behavior: 'smooth' });
+                updateActiveNav(targetId);
+            }
+        });
+    });
+
+    // Principles
+    const principlesGrid = document.getElementById('principles-grid');
+    principlesData.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'principle-card bg-white p-6 rounded-xl shadow-md cursor-pointer';
+        card.innerHTML = `
+            <h3 class="text-xl font-bold mb-2 text-blue-700">${p.title}</h3>
+            <p class="text-gray-700 mb-3">${p.description}</p>
+            <div class="details hidden pt-3 border-t border-gray-200">
+                <p class="text-sm font-semibold text-green-700">Tác động kinh doanh:</p>
+                <p class="text-sm text-gray-600">${p.impact}</p>
+            </div>
+        `;
+        card.addEventListener('click', () => {
+            card.querySelector('.details').classList.toggle('hidden');
+        });
+        principlesGrid.appendChild(card);
+    });
+
+    // Roadmap
+    const roadmapTimeline = document.getElementById('roadmap-timeline');
+    roadmapData.forEach((item, index) => {
+        const timelineItem = document.createElement('div');
+        timelineItem.className = 'timeline-item mb-8 cursor-pointer';
+        timelineItem.innerHTML = `
+            <div class="flex items-center">
+                <div class="z-10 flex items-center justify-center w-8 h-8 bg-blue-500 rounded-full text-white font-bold">${index + 1}</div>
+                <div class="flex-1 ml-4">
+                    <h3 class="text-xl font-semibold text-gray-800">${item.stage}</h3>
+                </div>
+                 <div class="icon-plus-minus text-2xl text-blue-500 font-light mr-2"></div>
+            </div>
+            <div class="ml-4 pl-8 timeline-content">
+                <p class="text-gray-600 mb-4">${item.description}</p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700">
+                    ${item.activities.map(act => `<li>${act}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+        timelineItem.addEventListener('click', () => {
+            const isActive = timelineItem.classList.contains('active');
+            document.querySelectorAll('.timeline-item').forEach(el => el.classList.remove('active'));
+            if (!isActive) {
+                timelineItem.classList.add('active');
+            }
+        });
+        roadmapTimeline.appendChild(timelineItem);
+    });
+
+    // Requirements & Documentation
+    const docListContainer = document.getElementById('documentation-list');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+
+    function renderDocs(filter = 'all') {
+        docListContainer.innerHTML = '';
+        const filteredData = filter === 'all' ? documentationData : documentationData.filter(d => d.type === filter);
+        
+        filteredData.forEach(doc => {
+            let typeLabel = '';
+            let typeColor = '';
+            switch (doc.type) {
+                case 'mandatory-docs': typeLabel = 'Tài liệu Bắt buộc'; typeColor = 'bg-red-100 text-red-800'; break;
+                case 'mandatory-records': typeLabel = 'Hồ sơ Bắt buộc'; typeColor = 'bg-yellow-100 text-yellow-800'; break;
+                case 'recommended': typeLabel = 'Khuyến nghị'; typeColor = 'bg-green-100 text-green-800'; break;
+            }
+            const item = document.createElement('div');
+            item.className = 'bg-white p-4 rounded-lg shadow-sm border-l-4';
+            item.style.borderColor = doc.type === 'mandatory-docs' ? '#ef4444' : (doc.type === 'mandatory-records' ? '#f59e0b' : '#22c55e');
+            item.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <h4 class="font-semibold text-lg text-gray-800">${doc.title}</h4>
+                    <span class="text-xs font-medium px-2.5 py-0.5 rounded-full ${typeColor}">${typeLabel}</span>
+                </div>
+                <p class="text-gray-600 mt-1">${doc.description}</p>
+            `;
+            docListContainer.appendChild(item);
+        });
+    }
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            filterButtons.forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            button.classList.add('bg-blue-500', 'text-white');
+            button.classList.remove('bg-white', 'text-gray-700');
+            const filter = button.id.replace('filter-', '');
+            renderDocs(filter);
+        });
+    });
+    
+    // Planning
+    const ctx = document.getElementById('timelineChart').getContext('2d');
+    let timelineChart;
+    
+    function createOrUpdateChart(size) {
+        const data = planningData[size];
+        document.getElementById('employee-size').textContent = data.size;
+        document.getElementById('cost-estimate').textContent = data.cost;
+        document.getElementById('maintenance-cost').textContent = data.maintenance;
+
+        const chartData = {
+            labels: ['Thời gian Triển khai Ước tính (Tháng)'],
+            datasets: [{
+                label: 'Tối thiểu',
+                data: [data.timeline[0]],
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                barPercentage: 0.5,
+            }, {
+                label: 'Tối đa',
+                data: [data.timeline[1]],
+                backgroundColor: 'rgba(25, 135, 84, 0.6)',
+                borderColor: 'rgba(25, 135, 84, 1)',
+                borderWidth: 1,
+                 barPercentage: 0.5,
+            }]
+        };
+
+        if (timelineChart) {
+            timelineChart.data = chartData;
+            timelineChart.update();
+        } else {
+            timelineChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Khung Thời gian Triển khai ISO 9001' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw} tháng`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 15,
+                            title: { display: true, text: 'Số tháng' }
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    const sizeButtons = document.querySelectorAll('.size-btn');
+    sizeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+             sizeButtons.forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            button.classList.add('bg-blue-500', 'text-white');
+            button.classList.remove('bg-white', 'text-gray-700');
+            const size = button.id.replace('size-', '');
+            createOrUpdateChart(size);
+        });
+    });
+
+    // Recommendations
+    const accordionContainer = document.getElementById('recommendations-accordion');
+    recommendationsData.forEach(item => {
+        const accItem = document.createElement('div');
+        accItem.className = 'bg-white rounded-lg shadow-sm';
+        accItem.innerHTML = `
+            <button class="w-full flex justify-between items-center text-left p-4 font-semibold text-lg text-gray-800 hover:bg-gray-50">
+                <span>${item.title}</span>
+                <span class="text-blue-500 transform transition-transform duration-300">+</span>
+            </button>
+            <div class="accordion-content overflow-hidden max-h-0 transition-all duration-500 ease-in-out">
+                <p class="p-4 pt-0 text-gray-600">${item.content}</p>
+            </div>
+        `;
+        const button = accItem.querySelector('button');
+        const content = accItem.querySelector('.accordion-content');
+        const icon = button.querySelector('span:last-child');
+        button.addEventListener('click', () => {
+            const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+            if (isOpen) {
+                content.style.maxHeight = '0px';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.style.transform = 'rotate(45deg)';
+            }
+        });
+        accordionContainer.appendChild(accItem);
+    });
+
+    // Initial state
+    updateActiveNav('overview');
+    renderDocs('all');
+    createOrUpdateChart('small');
+});
+</script>
+
+</body>
+</html>
