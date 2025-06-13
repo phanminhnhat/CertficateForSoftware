@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng Dụng Tương Tác: Khám Phá Quy Trình SDLC theo Chuẩn ISO 9001</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony Neutrals (Inspired by user request) -->
+    <!-- Application Structure Plan: Ứng dụng được thiết kế như một trang đơn (SPA) với cấu trúc dashboard. Phần trên cùng giới thiệu tổng quan và biểu đồ 7 nguyên tắc QMS. Phần chính là một khu vực khám phá tương tác: Sơ đồ quy trình SDLC trực quan ở trên và một layout hai cột bên dưới. Cột trái là thanh điều hướng cố định liệt kê 10 quy trình chính. Cột phải hiển thị nội dung chi tiết của quy trình được chọn (bước thực hiện, đầu vào/đầu ra, vai trò, công cụ, điều khoản ISO). Cấu trúc này cho phép người dùng có cái nhìn tổng quan và đi sâu vào chi tiết một cách linh hoạt, phục vụ cả mục đích lập kế hoạch và tham khảo vận hành hàng ngày, biến báo cáo tĩnh thành một công cụ làm việc hữu ích. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: 7 Nguyên tắc Quản lý Chất lượng -> Goal: Inform/Compare -> Viz: Biểu đồ Radar (Chart.js) -> Interaction: Hover để xem chi tiết -> Justification: Cung cấp một cái nhìn tổng quan, so sánh trực quan về các trụ cột triết lý của ISO 9001, tạo bối cảnh cho các quy trình chi tiết.
+        - Report Info: 10 quy trình SDLC và hỗ trợ -> Goal: Organize/Explore -> Viz: Sơ đồ quy trình HTML/CSS tương tác kết hợp với menu điều hướng dạng danh sách -> Interaction: Nhấp vào một quy trình sẽ lọc và hiển thị nội dung chi tiết tương ứng ở khu vực chính -> Justification: Biến một danh sách dài các quy trình thành một công cụ khám phá trực quan, dễ điều hướng và có cấu trúc.
+        - Report Info: Các bước, đầu vào, đầu ra, vai trò, công cụ của mỗi quy trình -> Goal: Inform -> Viz: Các thẻ (cards) và danh sách (lists) được tạo kiểu bằng Tailwind với các icon Unicode -> Interaction: Không có tương tác phức tạp, tập trung vào khả năng đọc và quét thông tin -> Justification: Trình bày thông tin chi tiết một cách rõ ràng, có hệ thống và dễ dàng tiếp nhận.
+        - Report Info: Thách thức và giải pháp -> Goal: Inform/Organize -> Viz: Accordion (HTML/JS) -> Interaction: Click để mở/đóng xem chi tiết -> Justification: Giúp trình bày thông tin một cách gọn gàng, tránh làm người dùng choáng ngợp và cho phép họ tập trung vào những vấn đề quan tâm.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #F8F9FA; /* warm neutral background */
+        }
+        .nav-link.active {
+            background-color: #E9ECEF;
+            color: #1a5f7a;
+            font-weight: 600;
+            border-left: 4px solid #1a5f7a;
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+            border-left: 4px solid transparent;
+        }
+        .process-flow-item {
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .process-flow-item.active {
+            background-color: #1a5f7a;
+            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .process-flow-item:not(.active):hover {
+            background-color: #DEE2E6;
+        }
+        .chart-container {
+            position: relative; 
+            width: 100%; 
+            max-width: 450px;
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 350px;
+            max-height: 400px;
+        }
+        .accordion-header {
+            cursor: pointer;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            /* Transition for max-height and padding */
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out; 
+            padding: 0 1.5rem; /* Default padding for collapse */
+        }
+        .accordion-content.is-open {
+            padding: 1rem 1.5rem; /* Padding when open */
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased">
+
+    <header class="bg-white shadow-md sticky top-0 z-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-[#1a5f7a]">Cẩm Nang ISO 9001 cho Doanh Nghiệp Phần Mềm</h1>
+            <a href="index.html" class="hidden sm:inline-flex items-center text-gray-600 hover:text-[#1a5f7a] text-sm font-medium py-2 px-3 rounded-md border border-gray-300 hover:border-[#1a5f7a] transition-all duration-200">
+                <span class="mr-2 text-lg">🏠</span>Trang Chủ
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <!-- Introduction Section -->
+        <section id="introduction" class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Giới thiệu: ISO 9001 và Ngành Phần Mềm</h2>
+                <p class="text-gray-600 mb-6">Tiêu chuẩn ISO 9001:2015 cung cấp một khuôn khổ quản lý chất lượng quốc tế, giúp các công ty phần mềm chuẩn hóa quy trình, giảm thiểu rủi ro và nâng cao sự hài lòng của khách hàng. Việc áp dụng ISO 9001 không chỉ là tuân thủ, mà còn là một công cụ chiến lược để xây dựng uy tín, cải thiện hiệu quả và thúc đẩy văn hóa cải tiến liên tục, tạo ra lợi thế cạnh tranh bền vững trên thị trường toàn cầu.</p>
+                <div class="grid md:grid-cols-5 gap-8 items-center">
+                    <div class="md:col-span-3">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">7 Nguyên Tắc Vàng của Quản Lý Chất Lượng</h3>
+                        <p class="text-gray-600 mb-4">Hệ thống Quản lý Chất lượng (QMS) theo ISO 9001 được xây dựng trên bảy nguyên tắc cốt lõi. Chúng là kim chỉ nam cho mọi hoạt động, từ chiến lược đến vận hành, nhằm đạt được sự xuất sắc và hiệu quả bền vững.</p>
+                        <ul class="space-y-2 text-sm text-gray-700">
+                            <li class="flex items-center"><span class="text-[#1a5f7a] mr-3">✔</span> Hướng vào Khách hàng</li>
+                            <li class="flex items-center"><span class="text-[#1a5f7a] mr-3">✔</span> Sự Lãnh đạo</li>
+                            <li class="flex items-center"><span class="text-[#1a5f7a] mr-3">✔</span> Sự Tham gia của Mọi người</li>
+                            <li class="flex items-center"><span class="text-[#1a5f7a] mr-3">✔</span> Tiếp cận theo Quá trình</li>
+                            <li class="flex items-center"><span class="text-[#1a5f7a] mr-3">✔</span> Cải tiến</li>
+                            <li class="flex items-center"><span class="text-[#1a5f7a] mr-3">✔</span> Quyết định dựa trên Bằng chứng</li>
+                            <li class="flex items-center"><span class="text-[#1a5f7a] mr-3">✔</span> Quản lý Mối quan hệ</li>
+                        </ul>
+                    </div>
+                    <div class="md:col-span-2 chart-container">
+                        <canvas id="principlesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Process Explorer -->
+        <section id="explorer" class="mb-12">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">Khám Phá Các Quy Trình</h2>
+                <p class="mt-2 text-lg text-gray-600">Nhấp vào một quy trình trong sơ đồ hoặc menu bên dưới để xem chi tiết.</p>
+            </div>
+
+            <!-- Process Flow Diagram -->
+            <div id="process-flow" class="mb-12 overflow-x-auto pb-4">
+                <div class="flex items-center justify-start md:justify-center space-x-2">
+                    <div class="process-flow-item active" data-process="req"><span>Yêu cầu</span></div>
+                    <div class="text-gray-400 text-2xl font-light">&rarr;</div>
+                    <div class="process-flow-item" data-process="design"><span>Thiết kế</span></div>
+                    <div class="text-gray-400 text-2xl font-light">&rarr;</div>
+                    <div class="process-flow-item" data-process="dev"><span>Phát triển</span></div>
+                    <div class="text-gray-400 text-2xl font-light">&rarr;</div>
+                    <div class="process-flow-item" data-process="test"><span>Kiểm thử</span></div>
+                    <div class="text-gray-400 text-2xl font-light">&rarr;</div>
+                    <div class="process-flow-item" data-process="deploy"><span>Triển khai</span></div>
+                    <div class="text-gray-400 text-2xl font-light">&rarr;</div>
+                    <div class="process-flow-item" data-process="maintain"><span>Bảo trì</span></div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-12 gap-8">
+                <!-- Left Sidebar Navigation -->
+                <aside class="lg:col-span-3 xl:col-span-3">
+                    <div class="bg-white rounded-xl shadow-lg p-4 sticky top-24">
+                        <h3 class="font-semibold text-lg mb-4 text-gray-800 px-3">Danh Mục Quy Trình</h3>
+                        <nav id="process-menu" class="space-y-1">
+                            <!-- JS will inject menu items here -->
+                        </nav>
+                    </div>
+                </aside>
+
+                <!-- Right Content Area -->
+                <div id="process-content" class="lg:col-span-9 xl:col-span-9">
+                    <!-- Content will be injected here by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Challenges Section -->
+        <section id="challenges" class="mb-12">
+             <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Thách Thức Thường Gặp và Giải Pháp</h2>
+                <div id="accordion-container" class="space-y-4">
+                    <!-- Accordion items will be injected here -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-gray-400 text-sm">
+            <p>&copy; 2025 | Cẩm nang được tạo ra để hỗ trợ các doanh nghiệp phần mềm áp dụng ISO 9001:2015 hiệu quả.</p>
+        </div>
+    </footer>
+
+    <script>
+        const processData = {
+            req: {
+                title: "1. Thu thập & Phân tích Yêu cầu",
+                description: "Là giai đoạn nền tảng, nơi các ý tưởng được chuyển đổi thành tài liệu đặc tả rõ ràng (SRS/BRD), đảm bảo mọi bên liên quan hiểu rõ mục đích, phạm vi và chức năng của phần mềm.",
+                isoClauses: "8.2, 8.3",
+                details: [
+                    { icon: "�", title: "Các bước thực hiện", items: ["Xác định mục tiêu & phạm vi dự án", "Thu thập yêu cầu ban đầu (phỏng vấn, khảo sát...)", "Phân tích và làm rõ yêu cầu (chức năng, phi chức năng)", "Tài liệu hóa yêu cầu (SRS, User Stories...)", "Review và phê duyệt yêu cầu", "Quản lý thay đổi yêu cầu (CR)"] },
+                    { icon: "📥", title: "Đầu vào", items: ["Ý tưởng kinh doanh", "Nhu cầu khách hàng", "Phản hồi người dùng", "Tài liệu hệ thống hiện có", "Quy định pháp luật"] },
+                    { icon: "📤", title: "Đầu ra", items: ["Tài liệu đặc tả yêu cầu (SRS/BRD)", "Danh sách yêu cầu ưu tiên", "User Stories / Use Cases", "Biên bản review & phê duyệt"] },
+                    { icon: "🛠️", title: "Công cụ", items: ["Jira, ClickUp", "Figma, Balsamiq (Wireframe/Mockup)", "Confluence, Word (Tài liệu hóa)"] },
+                    { icon: "👥", title: "Vai trò", items: ["Business Analyst (BA)", "Product Owner (PO)", "Các bên liên quan", "Nhóm phát triển", "QA"] },
+                ]
+            },
+            design: {
+                title: "2. Thiết kế",
+                description: "Là cầu nối giữa yêu cầu và phát triển, nơi các yêu cầu được chuyển đổi thành một kế hoạch chi tiết về cách thức phần mềm sẽ được xây dựng, bao gồm kiến trúc, cơ sở dữ liệu và giao diện người dùng.",
+                isoClauses: "8.3",
+                details: [
+                    { icon: "📝", title: "Các bước thực hiện", items: ["Thiết kế kiến trúc (Architectural Design)", "Thiết kế cơ sở dữ liệu (Database Design)", "Thiết kế UI/UX (Wireframe, Mockup, Prototype)", "Thiết kế chi tiết module (Detailed Module Design)", "Review và phê duyệt thiết kế"] },
+                    { icon: "📥", title: "Đầu vào", items: ["Tài liệu đặc tả yêu cầu (SRS/BRD)", "User Stories", "Kết quả nghiên cứu người dùng", "Tiêu chuẩn ngành"] },
+                    { icon: "📤", title: "Đầu ra", items: ["Tài liệu thiết kế kiến trúc (ADD)", "Tài liệu thiết kế cơ sở dữ liệu (DDD)", "Wireframe, Mockup, Prototype", "Tài liệu thiết kế module chi tiết (SDD)"] },
+                    { icon: "🛠️", title: "Công cụ", items: ["Lucidchart, draw.io (Kiến trúc)", "MySQL Workbench (CSDL)", "Figma, Sketch, Adobe XD (UI/UX)"] },
+                    { icon: "👥", title: "Vai trò", items: ["Software Architect", "UI/UX Designer", "Developer", "Database Architect", "QA"] },
+                ]
+            },
+            dev: {
+                title: "3. Phát triển/Lập trình",
+                description: "Giai đoạn chuyển đổi các tài liệu thiết kế thành mã nguồn có thể thực thi, tuân thủ các tiêu chuẩn chất lượng và thực hành tốt nhất trong ngành để xây dựng phần mềm ổn định, hiệu quả.",
+                isoClauses: "8.5.1",
+                details: [
+                    { icon: "📝", title: "Các bước thực hiện", items: ["Thiết lập môi trường phát triển", "Lập trình theo tiêu chuẩn mã hóa", "Quản lý kiểm soát phiên bản (Git)", "Kiểm thử đơn vị (Unit Test)", "Code Review", "Tích hợp liên tục (CI)"] },
+                    { icon: "📥", title: "Đầu vào", items: ["Tài liệu thiết kế chi tiết (SDD)", "Tiêu chuẩn mã hóa", "Môi trường phát triển"] },
+                    { icon: "📤", title: "Đầu ra", items: ["Mã nguồn đã viết", "Kết quả Unit Test", "Báo cáo phân tích mã tĩnh", "Kết quả Code Review", "Lịch sử phiên bản trong Git"] },
+                    { icon: "🛠️", items: ["IDE (VS Code, IntelliJ)", "Git, GitHub, GitLab", "Jenkins, GitLab CI (CI/CD)", "JUnit, Pytest (Unit Test)", "SonarQube"] },
+                    { icon: "👥", title: "Vai trò", items: ["Developer", "Lead Developer", "DevOps Engineer"] },
+                ]
+            },
+            test: {
+                title: "4. Kiểm thử",
+                description: "Giai đoạn quan trọng nhằm xác minh phần mềm đáp ứng yêu cầu và không có lỗi trước khi triển khai, đảm bảo chất lượng, độ tin cậy và hiệu suất của sản phẩm.",
+                isoClauses: "8.6, 8.7",
+                details: [
+                    { icon: "📝", title: "Các bước thực hiện", items: ["Lập Kế hoạch kiểm thử (Test Plan)", "Thiết kế Test Case (Functional, Non-functional...)", "Thực hiện Test Case", "Quản lý lỗi (Defect Management)", "Kiểm thử lại và Kiểm thử hồi quy", "Báo cáo kiểm thử"] },
+                    { icon: "📥", title: "Đầu vào", items: ["Tài liệu yêu cầu (SRS/BRD)", "Tài liệu thiết kế", "Mã nguồn đã phát triển", "Môi trường kiểm thử"] },
+                    { icon: "📤", title: "Đầu ra", items: ["Test Plan, Test Cases", "Báo cáo kết quả kiểm thử", "Báo cáo lỗi (Defect Reports)", "Biên bản nghiệm thu (UAT)"] },
+                    { icon: "🛠️", items: ["Jira, TestRail (Quản lý Test)", "Selenium, Cypress (Tự động hóa)", "JMeter (Hiệu năng)", "OWASP ZAP (Bảo mật)"] },
+                    { icon: "👥", title: "Vai trò", items: ["QA Engineer", "Tester", "Test Lead", "Automation Test Engineer"] },
+                ]
+            },
+            deploy: {
+                title: "5. Triển khai & Phát hành",
+                description: "Giai đoạn cuối cùng của SDLC, nơi sản phẩm được đóng gói, phân phối và đưa vào môi trường sản xuất để người dùng cuối có thể sử dụng một cách suôn sẻ và an toàn.",
+                isoClauses: "8.5.1, 8.5.2, 8.5.4, 8.5.6, 8.6",
+                 details: [
+                    { icon: "📝", title: "Các bước thực hiện", items: ["Lập kế hoạch phát hành", "Đóng gói sản phẩm", "Quản lý phiên bản", "Triển khai (Staging, Production)", "Xây dựng Kế hoạch quay lui (Rollback)", "Thông báo phát hành"] },
+                    { icon: "📥", title: "Đầu vào", items: ["Mã nguồn đã kiểm thử", "Test Reports", "Biên bản UAT", "Kế hoạch phát hành"] },
+                    { icon: "📤", title: "Đầu ra", items: ["Gói sản phẩm (Artifact)", "Release Notes", "Kế hoạch triển khai & quay lui", "Nhật ký triển khai"] },
+                    { icon: "🛠️", items: ["CI/CD Pipelines (Jenkins, GitLab CI)", "Git", "Ansible, Puppet", "Prometheus, Grafana (Giám sát)"] },
+                    { icon: "👥", title: "Vai trò", items: ["Release Engineer", "DevOps Engineer", "Project Manager"] },
+                ]
+            },
+            maintain: {
+                title: "6. Bảo trì & Hỗ trợ",
+                description: "Các hoạt động sau khi triển khai nhằm đảm bảo hệ thống hoạt động ổn định, khắc phục lỗi, cải thiện hiệu suất và cung cấp hỗ trợ kịp thời cho khách hàng.",
+                isoClauses: "8.5.5, 8.7",
+                details: [
+                    { icon: "📝", title: "Các bước thực hiện", items: ["Kiểm tra lỗi và phân tích", "Quản lý sự cố (Incident Management)", "Khắc phục lỗi (Bug Fixing)", "Hỗ trợ khách hàng (Customer Support)", "Cải tiến tính năng và áp dụng vá bảo mật", "Quản lý Thỏa thuận mức dịch vụ (SLA)"] },
+                    { icon: "📥", title: "Đầu vào", items: ["Phản hồi người dùng", "Nhật ký lỗi hệ thống (System Logs)", "Yêu cầu hỗ trợ"] },
+                    { icon: "📤", title: "Đầu ra", items: ["Bản vá lỗi (Patches)", "Báo cáo sự cố", "Câu trả lời hỗ trợ khách hàng", "Kế hoạch cải tiến sản phẩm"] },
+                    { icon: "🛠️", items: ["Hệ thống ticketing (Jira Service Desk, Zendesk)", "Công cụ giám sát", "Công cụ phân tích log"] },
+                    { icon: "👥", title: "Vai trò", items: ["Support Engineer", "Developer", "DevOps Engineer", "Customer Service"] },
+                ]
+            },
+            change: {
+                title: "7. Quản lý Thay đổi",
+                description: "Quy trình hỗ trợ nhằm đảm bảo mọi thay đổi đối với sản phẩm hoặc quy trình đều được xử lý một cách có kiểm soát, từ việc ghi nhận, đánh giá tác động, đến phê duyệt và triển khai.",
+                isoClauses: "6.3, 8.1, 8.3.6, 8.5.6",
+                details: [
+                     { icon: "📝", title: "Các bước thực hiện", items: ["Tiếp nhận và ghi nhận Yêu cầu thay đổi (CR)", "Phân tích và đánh giá tác động của CR", "Trình CR lên Hội đồng Kiểm soát Thay đổi (CCB)", "Phê duyệt hoặc từ chối CR", "Lập kế hoạch và triển khai thay đổi đã duyệt", "Xác minh và đóng CR"] },
+                    { icon: "📥", title: "Đầu vào", items: ["Yêu cầu thay đổi từ khách hàng/nội bộ", "Báo cáo lỗi", "Cơ hội cải tiến"] },
+                    { icon: "📤", items: ["Change Request Form đã hoàn thiện", "Biên bản đánh giá tác động", "Biên bản họp CCB"] },
+                    { icon: "🛠️", items: ["Jira, Confluence", "Hệ thống quản lý thay đổi chuyên dụng"] },
+                    { icon: "👥", title: "Vai trò", items: ["Change Control Board (CCB)", "Project Manager", "Product Owner", "Lead Developer"] },
+                ]
+            },
+            config: {
+                title: "8. Quản lý Cấu hình",
+                description: "Quy trình hỗ trợ để kiểm soát và duy trì tính nhất quán của các thành phần phần mềm (mã nguồn, thư viện, tài liệu, môi trường) trong suốt vòng đời của nó.",
+                isoClauses: "8.5.2",
+                details: [
+                    { icon: "📝", title: "Các bước thực hiện", items: ["Xác định các hạng mục cấu hình (CIs)", "Thiết lập đường cơ sở (Baseline) cho cấu hình", "Kiểm soát thay đổi cấu hình", "Báo cáo trạng thái cấu hình", "Kiểm toán cấu hình"] },
+                    { icon: "📥", items: ["Mã nguồn", "Thư viện phụ thuộc", "Tài liệu thiết kế", "Cấu hình môi trường"] },
+                    { icon: "📤", items: ["Cơ sở dữ liệu quản lý cấu hình (CMDB)", "Báo cáo trạng thái cấu hình", "Biên bản kiểm toán"] },
+                    { icon: "🛠️", items: ["Git", "Ansible, Puppet, Chef", "CMDB tools (e.g., ServiceNow)"] },
+                    { icon: "👥", title: "Vai trò", items: ["Configuration Manager", "DevOps Engineer", "System Administrator"] },
+                ]
+            },
+            project: {
+                title: "9. Quản lý Dự án",
+                description: "Quy trình bao trùm việc lập kế hoạch, thực thi, theo dõi và kết thúc dự án nhằm đảm bảo đạt được các mục tiêu về phạm vi, thời gian, chi phí và chất lượng.",
+                isoClauses: "6.1, 7.1, 8.1",
+                details: [
+                     { icon: "📝", title: "Các bước thực hiện", items: ["Khởi tạo dự án", "Lập kế hoạch chi tiết (phạm vi, thời gian, chi phí, nguồn lực, rủi ro)", "Thực thi kế hoạch dự án", "Theo dõi và kiểm soát tiến độ", "Quản lý giao tiếp và các bên liên quan", "Kết thúc dự án và bàn giao"] },
+                    { icon: "📥", items: ["Yêu cầu dự án", "Hợp đồng", "Phân tích kinh doanh"] },
+                    { icon: "📤", items: ["Kế hoạch quản lý dự án", "Báo cáo tiến độ", "Biên bản họp", "Bài học kinh nghiệm"] },
+                    { icon: "🛠️", items: ["Microsoft Project, Asana, Trello, Jira", "Bảng Gantt", "Kanban boards"] },
+                    { icon: "👥", title: "Vai trò", items: ["Project Manager", "Project Team", "Project Sponsor"] },
+                ]
+            },
+            vendor: {
+                title: "10. Quản lý Đối tác",
+                description: "Quy trình đảm bảo các sản phẩm và dịch vụ từ các nhà cung cấp bên ngoài (ví dụ: thư viện, API, dịch vụ cloud, team gia công) đáp ứng các yêu cầu chất lượng của công ty.",
+                isoClauses: "8.4",
+                details: [
+                    { icon: "📝", title: "Các bước thực hiện", items: ["Xác định nhu cầu thuê ngoài", "Đánh giá và lựa chọn nhà cung cấp", "Thiết lập hợp đồng và Thỏa thuận mức dịch vụ (SLA)", "Giám sát hiệu suất nhà cung cấp", "Kiểm soát chất lượng đầu ra", "Đánh giá lại nhà cung cấp định kỳ"] },
+                    { icon: "📥", items: ["Yêu cầu kỹ thuật/kinh doanh", "Danh sách nhà cung cấp tiềm năng", "Chính sách mua hàng"] },
+                    { icon: "📤", items: ["Hợp đồng đã ký kết", "Báo cáo đánh giá nhà cung cấp", "Hồ sơ hiệu suất", "Biên bản nghiệm thu"] },
+                    { icon: "🛠️", items: ["Hệ thống quản lý nhà cung cấp (SRM)", "Bảng điểm đánh giá", "Công cụ theo dõi SLA"] },
+                    { icon: "👥", title: "Vai trò", items: ["Procurement Manager", "Project Manager", "Technical Lead", "Legal Department"] },
+                ]
+            }
+        };
+
+        const challengesData = [
+            { title: "Tâm lý ngại thay đổi & thiếu cam kết", challenge: "Nhân viên và lãnh đạo có thể chưa thấy rõ lợi ích, gây ra sự kháng cự đối với các quy trình mới, vốn được xem là phức tạp.", solution: "Đào tạo chuyên sâu về lợi ích của ISO cho từng vai trò. Lãnh đạo cần đi đầu, tham gia tích cực và truyền thông rõ ràng. Khuyến khích nhân viên tham gia xây dựng quy trình." },
+            { title: "Hạn chế về nguồn lực", challenge: "Các dự án phần mềm thường có thời gian và ngân sách eo hẹp, gây khó khăn cho việc phân bổ nguồn lực để triển khai và duy trì ISO.", solution: "Lập kế hoạch triển khai theo từng giai đoạn, ưu tiên các quy trình quan trọng. Sử dụng phần mềm QMS để tự động hóa việc quản lý tài liệu và kiểm toán, giảm gánh nặng thủ công." },
+            { title: "Khó khăn trong tài liệu hóa", challenge: "Quy trình phát triển phần mềm, đặc biệt là Agile, có tính linh hoạt và thay đổi nhanh, gây khó khăn cho việc tài liệu hóa và duy trì sự cập nhật.", solution: "Triển khai hệ thống quản lý tài liệu điện tử (eQMS). Tập trung vào 'thông tin được tài liệu hóa' thực sự cần thiết, tích hợp vào các công cụ sẵn có như Jira, Confluence, Git." },
+            { title: "Duy trì cải tiến liên tục", challenge: "Có nguy cơ xem việc đạt chứng nhận là đích đến cuối cùng và bỏ bê các hoạt động duy trì, cải tiến sau đó, làm giảm giá trị của hệ thống.", solution: "Thực hiện nghiêm túc các cuộc đánh giá nội bộ và xem xét của lãnh đạo định kỳ. Tích hợp cải tiến liên tục vào văn hóa công ty, ví dụ như các buổi retrospective trong Agile." },
+        ];
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            const processMenu = document.getElementById('process-menu');
+            const processContent = document.getElementById('process-content');
+            const processFlowItems = document.querySelectorAll('.process-flow-item');
+            const accordionContainer = document.getElementById('accordion-container');
+
+            // Populate navigation menu
+            const menuHtml = Object.keys(processData).map(key => {
+                const isSupportProcess = parseInt(processData[key].title.split('.')[0]) > 6;
+                let html = '';
+                if (isSupportProcess && !document.querySelector('#process-menu hr')) {
+                     html += '<hr class="my-3 border-gray-200"/>';
+                }
+                html += `<a href="#explorer" class="nav-link block p-3 rounded-lg text-sm text-gray-700 hover:bg-gray-100" data-process="${key}">${processData[key].title}</a>`;
+                return html;
+            }).join('');
+            processMenu.innerHTML = menuHtml;
+
+            function renderContent(processKey) {
+                const data = processData[processKey];
+                if (!data) return;
+
+                let detailsHtml = data.details.map(detail => `
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 flex items-center"><span class="mr-3 text-lg">${detail.icon}</span>${detail.title}</h4>
+                        <ul class="mt-2 text-gray-600 space-y-1.5 pl-8 text-sm">
+                            ${detail.items.map(item => `<li class="relative pl-4 before:content-['•'] before:absolute before:left-0 before:text-[#1a5f7a]">${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                `).join('');
+
+                processContent.innerHTML = `
+                    <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 animate-fade-in">
+                        <div class="flex justify-between items-start">
+                             <h3 class="text-2xl font-bold text-[#1a5f7a]">${data.title}</h3>
+                             <span class="text-xs font-bold text-white bg-[#1a5f7a] px-3 py-1 rounded-full whitespace-nowrap">ISO: ${data.isoClauses}</span>
+                        </div>
+                        <p class="mt-2 text-gray-600">${data.description}</p>
+                        <hr class="my-6 border-gray-200">
+                        <div class="grid md:grid-cols-1 lg:grid-cols-2 gap-4">
+                           ${detailsHtml}
+                        </div>
+                    </div>
+                `;
+            }
+
+            function setActive(processKey) {
+                document.querySelectorAll('.nav-link').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.process === processKey);
+                });
+                processFlowItems.forEach(item => {
+                    item.classList.toggle('active', item.dataset.process === processKey);
+                });
+                renderContent(processKey);
+            }
+
+            processMenu.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetTab = e.target.closest('.nav-link');
+                if (targetTab) {
+                    const processKey = targetTab.dataset.process;
+                    setActive(processKey);
+                }
+            });
+
+            processFlowItems.forEach(item => {
+                 item.addEventListener('click', () => {
+                    const processKey = item.dataset.process;
+                    setActive(processKey);
+                     document.getElementById('explorer').scrollIntoView({ behavior: 'smooth' });
+                });
+
+                item.classList.add('p-3', 'rounded-full', 'font-semibold', 'text-sm', 'text-center', 'shadow-sm', 'bg-white', 'border', 'border-gray-300', 'whitespace-nowrap', 'min-w-[100px]');
+            });
+
+             // Populate accordion
+            const accordionHtml = challengesData.map((item, index) => `
+                <div class="border border-gray-200 rounded-lg">
+                    <div class="accordion-header bg-gray-50 hover:bg-gray-100 p-4 flex justify-between items-center rounded-t-lg">
+                        <h3 class="font-semibold text-gray-700">${item.title}</h3>
+                        <span class="transform transition-transform duration-300 text-gray-500">▼</span>
+                    </div>
+                    <div class="accordion-content bg-white border-t border-gray-200 rounded-b-lg">
+                        <p class="font-medium text-gray-600 mb-2"><strong>Thách thức:</strong> ${item.challenge}</p>
+                        <p class="text-gray-600"><strong>Giải pháp:</strong> ${item.solution}</p>
+                    </div>
+                </div>
+            `).join('');
+            accordionContainer.innerHTML = accordionHtml;
+
+            accordionContainer.addEventListener('click', function(e) {
+                const header = e.target.closest('.accordion-header');
+                if (header) {
+                    const accordionItem = header.parentElement; 
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('span');
+                    
+                    // Close all other accordions
+                    document.querySelectorAll('.accordion-item').forEach(item => {
+                        if (item !== accordionItem) { 
+                            const otherContent = item.querySelector('.accordion-content');
+                            const otherIcon = item.querySelector('.accordion-header span');
+                            otherContent.style.maxHeight = '0px'; 
+                            otherContent.classList.remove('is-open'); // Remove padding class
+                            otherIcon.style.transform = 'rotate(0deg)';
+                        }
+                    });
+
+                    // Toggle current accordion
+                    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+                        // If currently open, trigger collapse
+                        content.style.maxHeight = content.scrollHeight + 'px'; // Set to current height for smooth transition
+                        content.classList.remove('is-open'); // Remove padding class first
+                        requestAnimationFrame(() => { // Then set to 0px in next frame
+                            content.style.maxHeight = '0px';
+                        });
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        // If currently closed, open it
+                        content.classList.add('is-open'); // Add padding class first
+                        content.style.maxHeight = '9999px'; // Set to a very large value for full expansion
+                        icon.style.transform = 'rotate(-180deg)';
+                    }
+                }
+            });
+
+            // Initial load
+            setActive('req');
+            document.querySelector('.nav-link[data-process="req"]').classList.add('active');
+            
+            // Chart.js - Principles Radar Chart
+            const principlesCtx = document.getElementById('principlesChart').getContext('2d');
+            new Chart(principlesCtx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Hướng vào KH', 'Lãnh đạo', 'Sự tham gia', 'Theo quá trình','Cải tiến', 'Dựa trên Bằng chứng', 'Quản lý Mối quan hệ'
+                    ],
+                    datasets: [{
+                        label: 'Mức độ quan trọng',
+                        data: [10, 8, 7, 10, 9, 8, 7],
+                        backgroundColor: 'rgba(26, 95, 122, 0.2)',
+                        borderColor: 'rgba(26, 95, 122, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(26, 95, 122, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#E2E8F0' },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                            pointLabels: {
+                                font: { size: 10, family: "'Be Vietnam Pro', sans-serif" },
+                                color: '#4A5568'
+                            },
+                             grid: { color: '#E9ECEF' },
+                             ticks: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes fade-in {
+                    from { opacity: 0; transform: translateY(15px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fade-in 0.5s ease-out forwards;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
+�
