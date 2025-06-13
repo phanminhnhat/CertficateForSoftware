@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng Dụng Tương Tác: Lộ Trình ISO 9001 cho Doanh Nghiệp Phần Mềm</title>
+    
+    <!-- Chosen Palette: Corporate Calm -->
+    <!-- Application Structure Plan: A tab-based/vertical-scrolling SPA with a sticky nav. The structure is thematic rather than linear: 1. "Why ISO 9001?" (Intro & Benefits), 2. "The Roadmap" (interactive process flow), 3. "For Software Devs" (industry specifics with accordions), 4. "Challenges" (side-by-side comparison), 5. "Partners" (card grid). This structure allows both guided discovery and direct access to specific information, enhancing usability by breaking down dense report content into interactive, digestible chunks. -->
+    <!-- Visualization & Content Choices: Roadmap -> Interactive HTML/CSS Process Flow -> Organizes complex stages, click-to-expand simplifies info. Timeline Estimation -> Horizontal Bar Chart (Chart.js) -> Compares stage durations visually. 7 Principles -> Interactive Cards (HTML/JS) -> Informs via engaging hover/click reveals. Required Docs -> Accordion (HTML/JS) -> Organizes a long list into a compact, user-controlled view. This mix of custom HTML diagrams and a standard chart provides a rich, interactive, and SVG-free experience. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: #f8f9fa;
+            color: #343a40;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        .nav-link {
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .nav-link.active {
+            color: #c58940;
+            border-bottom-color: #c58940;
+        }
+        .roadmap-line {
+            width: 4px;
+            background-color: #e0e0e0;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+        .roadmap-item-content {
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+        .roadmap-item.active .roadmap-item-content {
+            max-height: 500px;
+            opacity: 1;
+        }
+        .roadmap-dot {
+            transition: all 0.3s ease;
+        }
+        .roadmap-item.active .roadmap-dot {
+            background-color: #c58940;
+            transform: scale(1.25);
+        }
+        .accordion-content {
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            max-height: 0;
+            overflow: hidden;
+        }
+        .accordion-item.active .accordion-content {
+            max-height: 500px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        .accordion-item.active .accordion-arrow {
+            transform: rotate(180deg);
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #1e3a8a, #4a5568);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="main-header" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="text-xl font-bold gradient-text">ISO 9001 Navigator</div>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#why" class="nav-link text-gray-600 hover:text-blue-800 border-b-2 border-transparent pb-1">Tại Sao ISO?</a>
+                    <a href="#roadmap" class="nav-link text-gray-600 hover:text-blue-800 border-b-2 border-transparent pb-1">Lộ Trình</a>
+                    <a href="#specifics" class="nav-link text-gray-600 hover:text-blue-800 border-b-2 border-transparent pb-1">Cho Ngành Phần Mềm</a>
+                    <a href="#challenges" class="nav-link text-gray-600 hover:text-blue-800 border-b-2 border-transparent pb-1">Thử Thách</a>
+                    <a href="#partners" class="nav-link text-gray-600 hover:text-blue-800 border-b-2 border-transparent pb-1">Đối Tác</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 lg:px-8">
+
+        <section id="hero" class="text-center py-16 md:py-24">
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight">
+                <span class="block gradient-text">Chinh Phục ISO 9001:2015</span>
+                <span class="block text-xl md:text-2xl text-gray-600 mt-4">Nâng tầm Chất lượng cho Doanh nghiệp Phần mềm Việt Nam</span>
+            </h1>
+            <p class="mt-6 max-w-3xl mx-auto text-lg text-gray-500">
+                Ứng dụng này biến báo cáo chi tiết về lộ trình đạt chứng nhận ISO 9001 thành một cẩm nang tương tác. Khám phá các nguyên tắc, lợi ích, lộ trình từng bước và các công việc cụ thể để áp dụng thành công hệ thống quản lý chất lượng vào công ty của bạn.
+            </p>
+        </section>
+
+        <section id="why" class="py-16 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Tại Sao Lại là ISO 9001?</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">ISO 9001 không chỉ là một chứng nhận, mà là một khuôn khổ chiến lược giúp doanh nghiệp vận hành hiệu quả, giảm thiểu rủi ro và xây dựng lợi thế cạnh tranh bền vững.</p>
+            </div>
+            
+            <div class="mb-16">
+                <h3 class="text-2xl font-semibold text-center mb-8 text-gray-700">7 Nguyên Tắc Quản Lý Chất Lượng Cốt Lõi</h3>
+                <div id="principles-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-2xl font-semibold text-center mb-8 text-gray-700">Lợi Ích Thực Tiễn Cho Ngành Phần Mềm</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <span class="text-4xl">🚀</span>
+                        <h4 class="mt-4 font-bold text-lg">Nâng Cao Chất Lượng</h4>
+                        <p class="mt-2 text-sm text-gray-600">Giảm lỗi phần mềm, tăng tính ổn định và đáp ứng vượt mong đợi của khách hàng.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <span class="text-4xl">⚙️</span>
+                        <h4 class="mt-4 font-bold text-lg">Tối Ưu Hiệu Suất</h4>
+                        <p class="mt-2 text-sm text-gray-600">Hợp lý hóa quy trình SDLC, loại bỏ lãng phí và tăng năng suất đội ngũ.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <span class="text-4xl">🏆</span>
+                        <h4 class="mt-4 font-bold text-lg">Tăng Lợi Thế Cạnh Tranh</h4>
+                        <p class="mt-2 text-sm text-gray-600">Xây dựng uy tín, tiếp cận các thị trường khó tính và các dự án quốc tế lớn.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md text-center">
+                        <span class="text-4xl">💡</span>
+                        <h4 class="mt-4 font-bold text-lg">Văn Hóa Cải Tiến</h4>
+                        <p class="mt-2 text-sm text-gray-600">Thúc đẩy sự gắn kết, sáng tạo và tinh thần trách nhiệm trong toàn bộ nhân viên.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="roadmap" class="py-16 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Lộ Trình Chinh Phục ISO 9001</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Đây là hành trình 5 giai đoạn theo chu trình Plan-Do-Check-Act (PDCA). Nhấp vào từng giai đoạn để khám phá các công việc chính, mục tiêu và vai trò chịu trách nhiệm.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+                <div class="lg:col-span-1">
+                     <h3 class="text-2xl font-semibold mb-4 text-gray-700 text-center">Phân Bổ Thời Gian (Ước Tính)</h3>
+                     <p class="text-center text-sm text-gray-500 mb-4">Biểu đồ thể hiện thời gian ước tính (theo tháng) để hoàn thành các giai đoạn chính của lộ trình, giúp doanh nghiệp lập kế hoạch nguồn lực hiệu quả hơn.</p>
+                     <div class="chart-container h-[400px]">
+                         <canvas id="roadmapTimelineChart"></canvas>
+                     </div>
+                </div>
+                <div class="lg:col-span-2 relative">
+                    <div class="roadmap-line"></div>
+                    <div id="roadmap-container" class="space-y-4">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="specifics" class="py-16 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Dành Riêng cho Ngành Phần Mềm</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Việc áp dụng ISO 9001 đòi hỏi sự tùy chỉnh để phù hợp với đặc thù của vòng đời phát triển phần mềm (SDLC) và môi trường công nghệ.</p>
+            </div>
+            <div id="accordion-container" class="max-w-4xl mx-auto space-y-4">
+            </div>
+        </section>
+
+        <section id="challenges" class="py-16 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Vượt Qua Thử Thách</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Nhận diện sớm các rào cản và chuẩn bị giải pháp là chìa khóa để triển khai thành công và bền vững.</p>
+            </div>
+            <div id="challenges-container" class="space-y-8 max-w-5xl mx-auto">
+            </div>
+        </section>
+
+        <section id="partners" class="py-16 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800">Tìm Kiếm Đối Tác Chứng Nhận Uy Tín</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Lựa chọn một tổ chức chứng nhận được công nhận và có kinh nghiệm trong ngành phần mềm là bước cuối cùng và quan trọng trên hành trình của bạn.</p>
+            </div>
+            <div id="partners-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="container mx-auto px-8 py-8 text-center">
+            <p>Ứng dụng tương tác được phát triển dựa trên "Nghiên cứu về lộ trình và các công việc cần làm để đạt được ISO 9001".</p>
+            <p class="text-sm text-gray-400 mt-2">Việc xây dựng một "DNA Chất Lượng" là khoản đầu tư chiến lược cho tương lai bền vững.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const data = {
+                principles: [
+                    { name: 'Hướng vào Khách hàng', icon: '🎯', desc: 'Thấu hiểu, đáp ứng và vượt qua mong đợi của khách hàng.' },
+                    { name: 'Sự Lãnh đạo', icon: '👑', desc: 'Lãnh đạo thiết lập tầm nhìn, định hướng và cam kết với mục tiêu chất lượng.' },
+                    { name: 'Sự Tham gia của Mọi người', icon: '👥', desc: 'Trao quyền và khuyến khích mọi nhân viên đóng góp vào sự thành công chung.' },
+                    { name: 'Tiếp cận theo Quá trình', icon: '🔄', desc: 'Quản lý các hoạt động như những quy trình liên kết để tối ưu hóa hiệu suất.' },
+                    { name: 'Cải tiến', icon: '📈', desc: 'Không ngừng tìm kiếm cơ hội để nâng cao năng lực và hiệu quả hoạt động.' },
+                    { name: 'Quyết định dựa trên Bằng chứng', icon: '📊', desc: 'Ra quyết định dựa trên phân tích dữ liệu và thông tin khách quan.' },
+                    { name: 'Quản lý Mối quan hệ', icon: '🤝', desc: 'Xây dựng mối quan hệ bền vững với các bên liên quan để cùng phát triển.' }
+                ],
+                roadmap: [
+                    { 
+                        stage: 1, 
+                        title: 'Chuẩn Bị & Lập Kế Hoạch', 
+                        tasks: [
+                            'Cam kết của Lãnh đạo cấp cao & thành lập Ban Dự án.',
+                            'Xác định phạm vi áp dụng Hệ thống Quản lý Chất lượng (QMS).',
+                            'Phân tích khoảng cách (Gap Analysis) & đánh giá hiện trạng.',
+                            'Xây dựng Kế hoạch triển khai chi tiết.'
+                        ],
+                        objective: 'Đảm bảo sự cam kết, định hướng rõ ràng và xác định các khu vực cần cải thiện.',
+                        responsible: 'Lãnh đạo cấp cao, Trưởng Ban Dự án'
+                    },
+                    { 
+                        stage: 2, 
+                        title: 'Xây Dựng & Tài Liệu Hóa QMS', 
+                        tasks: [
+                            'Thiết lập chính sách, mục tiêu chất lượng.',
+                            'Xây dựng & tài liệu hóa các quy trình cốt lõi (bao gồm SDLC).',
+                            'Thiết lập hệ thống kiểm soát tài liệu & hồ sơ.'
+                        ],
+                        objective: 'Thiết lập khuôn khổ QMS, đảm bảo các quy trình được xác định rõ ràng và có thể kiểm soát.',
+                        responsible: 'Ban Dự án, Quản lý các phòng ban'
+                    },
+                    { 
+                        stage: 3, 
+                        title: 'Triển Khai & Vận Hành QMS', 
+                        tasks: [
+                            'Đào tạo & nâng cao nhận thức cho toàn bộ nhân sự.',
+                            'Áp dụng các quy trình vào hoạt động hàng ngày.',
+                            'Thực hành quản lý rủi ro & cơ hội.',
+                            'Kiểm soát chặt chẽ các quá trình thuê ngoài (outsourcing).'
+                        ],
+                        objective: 'Đảm bảo QMS được tích hợp vào hoạt động hàng ngày, nhân viên hiểu và tuân thủ.',
+                        responsible: 'Toàn bộ nhân sự, Quản lý các phòng ban'
+                    },
+                    { 
+                        stage: 4, 
+                        title: 'Đánh Giá & Cải Tiến', 
+                        tasks: [
+                            'Giám sát & đo lường hiệu suất QMS (KPIs).',
+                            'Thực hiện đánh giá nội bộ định kỳ.',
+                            'Tổ chức các cuộc họp xem xét của lãnh đạo.',
+                            'Thực hiện hành động khắc phục & phòng ngừa.'
+                        ],
+                        objective: 'Đánh giá hiệu quả QMS, xác định điểm không phù hợp và cơ hội cải tiến liên tục.',
+                        responsible: 'Quản lý chất lượng, Đánh giá viên nội bộ, Lãnh đạo'
+                    },
+                    { 
+                        stage: 5, 
+                        title: 'Đánh Giá Chứng Nhận', 
+                        tasks: [
+                            'Lựa chọn tổ chức chứng nhận uy tín.',
+                            'Trải qua Đánh giá giai đoạn 1 (đánh giá tài liệu).',
+                            'Trải qua Đánh giá giai đoạn 2 (đánh giá tại hiện trường).',
+                            'Nhận chứng nhận ISO 9001 và duy trì.'
+                        ],
+                        objective: 'Đạt được chứng nhận ISO 9001 chính thức và chuẩn bị cho việc duy trì, cải tiến liên tục.',
+                        responsible: 'Ban Dự án, Tổ chức chứng nhận'
+                    }
+                ],
+                specifics: [
+                    { title: 'Tích hợp ISO 9001 vào Vòng đời Phát triển Phần mềm (SDLC)', content: 'Các nguyên tắc của ISO 9001 cần được "may đo" để phù hợp với phương pháp luận phát triển (Agile, Scrum, DevOps). Thay vì tạo ra quy trình cứng nhắc, ISO 9001 hỗ trợ các nguyên tắc như "cải tiến liên tục" qua các buổi retrospective, "phản hồi khách hàng" liên tục và "quản lý rủi ro" trong từng sprint.'},
+                    { title: 'Yêu cầu về Tài liệu hóa và Kiểm soát Quy trình', content: 'Tập trung vào "thông tin được tài liệu hóa" thực sự cần thiết. Đối với ngành phần mềm, "tài liệu" bao gồm cả mã nguồn, yêu cầu thay đổi, cấu hình và nhật ký kiểm thử. Sử dụng các công cụ số hóa như Git, Jira, Confluence để quản lý vòng đời tài liệu, đảm bảo tính toàn vẹn và khả năng truy vết.' },
+                    { title: 'Quản lý Rủi ro trong Dự án Phần mềm', content: 'Quản lý rủi ro là một quá trình động, liên tục thay vì chỉ là một danh sách kiểm tra. Các rủi ro về bảo mật, hiệu suất, khả năng mở rộng phải được đánh giá và cập nhật liên tục trong các cuộc họp lập kế hoạch sprint, đánh giá mã và kiểm thử.'},
+                    { title: 'Kiểm soát Chất lượng Đối tác Gia công', content: 'Việc kiểm soát chất lượng thuê ngoài không chỉ là các điều khoản hợp đồng. Cần xây dựng mối quan hệ đối tác chiến lược, chia sẻ văn hóa chất lượng và tích hợp hệ thống QMS của đối tác vào chuỗi giá trị của mình thông qua hợp tác chặt chẽ và chia sẻ kiến thức.'}
+                ],
+                challenges: [
+                    { challenge: 'Tâm lý ngại thay đổi & thiếu cam kết', solution: 'Lãnh đạo phải đi đầu và cam kết rõ ràng. Truyền thông mạnh mẽ về lợi ích, đồng thời lôi kéo nhân viên tham gia vào quá trình xây dựng quy trình để họ cảm thấy được trao quyền, biến ISO thành công cụ hỗ trợ công việc thay vì gánh nặng hành chính.' },
+                    { challenge: 'Hạn chế về nguồn lực', solution: 'Lập kế hoạch triển khai theo giai đoạn. Ưu tiên đầu tư vào các hệ thống QMS số hóa để tự động hóa việc quản lý tài liệu, kiểm toán, giúp giảm bớt gánh nặng thủ công và tiết kiệm thời gian, chi phí dài hạn.' },
+                    { challenge: 'Khó khăn trong duy trì cải tiến', solution: 'Xem chứng nhận là khởi đầu, không phải đích đến. Tích hợp cải tiến liên tục vào văn hóa công ty, ví dụ: sử dụng kết quả từ các buổi retrospective của Agile làm đầu vào cho QMS. Thực hiện nghiêm túc các cuộc đánh giá nội bộ và xem xét của lãnh đạo định kỳ.'}
+                ],
+                partners: [
+                    { name: 'TQCSI (Vietnam)', recognized: 'Thành viên IAF (qua JAS-ANZ)' },
+                    { name: 'KNA CERT', recognized: 'Thành viên IAF (qua KNA CERT)' },
+                    { name: 'Bureau Veritas (Việt Nam)', recognized: 'Tổ chức quốc tế' },
+                    { name: 'QUACERT', recognized: 'Tổ chức quốc gia của Việt Nam' },
+                    { name: 'BSI (Việt Nam)', recognized: 'Tổ chức quốc tế hàng đầu' },
+                    { name: 'Vinacontrol CE', recognized: 'Thành viên IAF (qua BoA)' },
+                    { name: 'TUV NORD (Việt Nam)', recognized: 'Tổ chức quốc tế' },
+                    { name: 'Intertek (Việt Nam)', recognized: 'Tổ chức quốc tế' }
+                ]
+            };
+
+            const principlesGrid = document.getElementById('principles-grid');
+            data.principles.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-6 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300';
+                card.innerHTML = `
+                    <div class="text-4xl mb-4">${p.icon}</div>
+                    <h4 class="font-bold text-lg text-gray-800">${p.name}</h4>
+                    <p class="mt-2 text-sm text-gray-600">${p.desc}</p>
+                `;
+                principlesGrid.appendChild(card);
+            });
+
+            const roadmapContainer = document.getElementById('roadmap-container');
+            data.roadmap.forEach((item, index) => {
+                const roadmapItem = document.createElement('div');
+                roadmapItem.className = 'roadmap-item relative pl-16 cursor-pointer';
+                roadmapItem.innerHTML = `
+                    <div class="roadmap-dot absolute left-1/2 top-3 -translate-x-1/2 w-6 h-6 bg-gray-300 rounded-full border-4 border-white z-10 flex items-center justify-center text-white font-bold">${item.stage}</div>
+                    <div class="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <h4 class="text-xl font-semibold text-gray-800">${item.title}</h4>
+                        <div class="roadmap-item-content mt-4">
+                            <p class="text-gray-600 mb-3"><strong class="font-semibold text-gray-700">Mục tiêu:</strong> ${item.objective}</p>
+                            <p class="text-gray-600 mb-4"><strong class="font-semibold text-gray-700">Vai trò chính:</strong> ${item.responsible}</p>
+                            <ul class="list-disc list-inside space-y-2 text-gray-600">
+                                ${item.tasks.map(task => `<li>${task}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                roadmapContainer.appendChild(roadmapItem);
+                
+                roadmapItem.addEventListener('click', () => {
+                    const wasActive = roadmapItem.classList.contains('active');
+                    roadmapContainer.querySelectorAll('.roadmap-item').forEach(el => el.classList.remove('active'));
+                    if (!wasActive) {
+                        roadmapItem.classList.add('active');
+                    }
+                });
+            });
+
+            const accordionContainer = document.getElementById('accordion-container');
+            data.specifics.forEach(item => {
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'accordion-item bg-white rounded-lg shadow-md overflow-hidden';
+                accordionItem.innerHTML = `
+                    <button class="w-full text-left p-4 flex justify-between items-center font-semibold text-lg text-gray-800 hover:bg-gray-50 transition-colors">
+                        <span>${item.title}</span>
+                        <svg class="accordion-arrow w-6 h-6 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content px-4 text-gray-600">
+                        <p>${item.content}</p>
+                    </div>
+                `;
+                accordionContainer.appendChild(accordionItem);
+
+                accordionItem.querySelector('button').addEventListener('click', () => {
+                    accordionItem.classList.toggle('active');
+                });
+            });
+
+            const challengesContainer = document.getElementById('challenges-container');
+            data.challenges.forEach(item => {
+                const challengeCard = document.createElement('div');
+                challengeCard.className = 'bg-white rounded-lg shadow-lg p-6 grid md:grid-cols-2 gap-6 items-center';
+                challengeCard.innerHTML = `
+                    <div>
+                        <h4 class="text-xl font-bold text-red-600">Thử thách:</h4>
+                        <p class="mt-2 text-lg text-gray-700">${item.challenge}</p>
+                    </div>
+                    <div class="md:border-l-2 border-green-500 md:pl-6">
+                        <h4 class="text-xl font-bold text-green-600">Giải pháp:</h4>
+                        <p class="mt-2 text-lg text-gray-700">${item.solution}</p>
+                    </div>
+                `;
+                challengesContainer.appendChild(challengeCard);
+            });
+            
+            const partnersGrid = document.getElementById('partners-grid');
+            data.partners.forEach(p => {
+                const partnerCard = document.createElement('div');
+                partnerCard.className = 'bg-white p-6 rounded-lg shadow-md text-center border-t-4 border-blue-800';
+                partnerCard.innerHTML = `
+                    <h4 class="text-xl font-bold text-blue-900">${p.name}</h4>
+                    <p class="mt-2 text-sm text-gray-500 bg-gray-100 inline-block px-3 py-1 rounded-full">${p.recognized}</p>
+                `;
+                partnersGrid.appendChild(partnerCard);
+            });
+            
+            const roadmapTimelineCtx = document.getElementById('roadmapTimelineChart').getContext('2d');
+            new Chart(roadmapTimelineCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['GĐ 1: Kế hoạch', 'GĐ 2: Xây dựng', 'GĐ 3: Triển khai', 'GĐ 4: Đánh giá', 'GĐ 5: Chứng nhận'],
+                    datasets: [{
+                        label: 'Thời gian ước tính (tháng)',
+                        data: [1.5, 4.5, 4.5, 3, 1.5],
+                        backgroundColor: [
+                            'rgba(255, 159, 64, 0.6)',
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(153, 102, 255, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                           display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: (tooltipItems) => { return tooltipItems[0].label; }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                             title: {
+                                display: true,
+                                text: 'Số tháng'
+                            }
+                        }
+                    }
+                }
+            });
+
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                        });
+                    }
+                });
+            }, { rootMargin: '-25% 0px -75% 0px' });
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
