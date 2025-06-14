@@ -64,9 +64,87 @@
         .pyramid-level {
             clip-path: polygon(10% 0, 90% 0, 100% 100%, 0% 100%);
         }
+
+        /* Custom styles for dropdown menu */
+        .group .dropdown-menu {
+            display: none; /* Hidden by default */
+        }
+
+        .group:hover .dropdown-menu {
+            display: block; /* Show on hover for desktop */
+        }
+
+        /* Mobile specific styles for dropdown */
+        @media (max-width: 767px) {
+            .group .dropdown-menu {
+                position: static; /* Stack statically in mobile menu */
+                background-color: transparent; /* No specific background */
+                box-shadow: none;
+                width: auto;
+                margin-top: 0;
+            }
+            .group.active .dropdown-menu {
+                display: block; /* Show on click for mobile when active */
+            }
+            .group .dropdown-menu a {
+                padding-left: 2rem; /* Indent sub-items */
+            }
+            /* Further indent for nested dropdowns on mobile */
+            .group .dropdown-menu .group .dropdown-menu a {
+                padding-left: 3rem;
+            }
+        }
     </style>
 </head>
 <body class="text-gray-800">
+    <!-- Navigation Bar -->
+    <nav class="bg-[#004AAD] p-4 shadow-lg relative">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-white text-2xl font-bold">Trang Chủ</a>
+
+            <!-- Hamburger Icon for Mobile -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path id="hamburger-icon-path-1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16"></path>
+                        <path id="hamburger-icon-path-2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16"></path>
+                        <path id="hamburger-icon-path-3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Desktop Menu & Mobile Menu (toggled) -->
+            <div id="mobile-menu" class="hidden md:flex md:items-center md:space-x-6 w-full md:w-auto mt-4 md:mt-0">
+                <ul class="flex flex-col md:flex-row md:space-x-6 space-y-2 md:space-y-0 w-full md:w-auto">
+                    <!-- ISO 9001 Parent Menu Item -->
+                    <li class="relative group">
+                        <a href="#" class="text-white hover:text-gray-300 transition duration-300 flex items-center justify-between py-2 md:py-0" aria-haspopup="true" aria-expanded="false">
+                            ISO 9001
+                            <svg class="ml-2 w-4 h-4 md:group-hover:rotate-180 transition-transform md:hidden mobile-dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </a>
+                        <ul class="dropdown-menu md:absolute md:top-full md:left-0 md:bg-[#004AAD] md:shadow-lg md:rounded-md md:w-60 py-2 md:mt-2 space-y-1 w-full">
+                            <li><a href="iso9001.html" class="block px-4 py-2 text-white hover:bg-blue-600 transition duration-300 rounded-md">Giới thiệu về ISO 9001</a></li>
+                            
+                            <!-- ISO 9001 for Software Nested Menu Item -->
+                            <li class="relative group">
+                                <a href="#" class="text-white hover:bg-blue-600 transition duration-300 flex items-center justify-between px-4 py-2" aria-haspopup="true" aria-expanded="false">
+                                    ISO 9001 trong Lĩnh vực phần mềm
+                                    <svg class="ml-2 w-4 h-4 md:group-hover:rotate-180 transition-transform md:hidden mobile-dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </a>
+                                <ul class="dropdown-menu md:absolute md:top-0 md:left-full md:bg-[#004AAD] md:shadow-lg md:rounded-md md:w-60 py-2 md:mt-0 space-y-1 w-full">
+                                    <li><a href="iso9001SDLC.html" class="block px-4 py-2 text-white hover:bg-blue-600 transition duration-300 rounded-md">SDLC trong ISO 9001</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
     <div class="container mx-auto p-4 md:p-8">
 
@@ -340,6 +418,142 @@
                     }
                 }
             }
+        });
+
+        // JavaScript for mobile menu and dropdowns
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const hamburgerIconPath1 = document.getElementById('hamburger-icon-path-1');
+            const hamburgerIconPath2 = document.getElementById('hamburger-icon-path-2');
+            const hamburgerIconPath3 = document.getElementById('hamburger-icon-path-3');
+
+            // Function to toggle mobile menu visibility and icon
+            mobileMenuButton.addEventListener('click', () => {
+                const isMenuHidden = mobileMenu.classList.contains('hidden');
+
+                if (isMenuHidden) {
+                    // Show menu
+                    mobileMenu.classList.remove('hidden');
+                    mobileMenu.classList.add('flex', 'flex-col', 'items-start', 'absolute', 'top-16', 'left-0', 'bg-[#004AAD]', 'h-[calc(100vh-4rem)]', 'w-full', 'z-50', 'py-4', 'px-6');
+                    // Transform hamburger icon to 'X'
+                    hamburgerIconPath1.setAttribute('d', 'M6 18L18 6');
+                    hamburgerIconPath2.setAttribute('d', 'M0 12h0'); // Hide middle line
+                    hamburgerIconPath3.setAttribute('d', 'M6 6L18 18');
+                } else {
+                    // Hide menu
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.classList.remove('flex', 'flex-col', 'items-start', 'absolute', 'top-16', 'left-0', 'bg-[#004AAD]', 'h-[calc(100vh-4rem)]', 'w-full', 'z-50', 'py-4', 'px-6');
+                    // Transform 'X' back to hamburger icon
+                    hamburgerIconPath1.setAttribute('d', 'M4 6h16');
+                    hamburgerIconPath2.setAttribute('d', 'M4 12h16');
+                    hamburgerIconPath3.setAttribute('d', 'M4 18h16');
+                    // Also hide all active dropdowns when closing the main menu
+                    document.querySelectorAll('#mobile-menu .group.active .dropdown-menu').forEach(menu => {
+                        menu.classList.add('hidden');
+                    });
+                    document.querySelectorAll('#mobile-menu .group.active').forEach(group => {
+                        group.classList.remove('active');
+                    });
+                }
+            });
+
+            // Handle dropdowns for mobile (click to toggle)
+            // Select all top-level parents that have a dropdown
+            const dropdownParentLinks = document.querySelectorAll('#mobile-menu > ul > li.group > a');
+            dropdownParentLinks.forEach(parentLink => {
+                parentLink.addEventListener('click', (e) => {
+                    // Check if it's a mobile view
+                    if (window.innerWidth < 768) {
+                        e.preventDefault(); // Prevent default link behavior
+                        const parentLi = parentLink.closest('li.group');
+                        const subMenu = parentLink.nextElementSibling; // Get the UL sibling
+
+                        if (subMenu && subMenu.classList.contains('dropdown-menu')) {
+                            parentLi.classList.toggle('active');
+                            subMenu.classList.toggle('hidden');
+                        }
+                    }
+                });
+            });
+
+            // Handle nested dropdowns for mobile (click to toggle)
+            const nestedDropdownParentLinks = document.querySelectorAll('#mobile-menu .dropdown-menu > li.group > a');
+            nestedDropdownParentLinks.forEach(parentLink => {
+                parentLink.addEventListener('click', (e) => {
+                    if (window.innerWidth < 768) {
+                        e.preventDefault();
+                        const parentLi = parentLink.closest('li.group');
+                        const subMenu = parentLink.nextElementSibling;
+
+                        if (subMenu && subMenu.classList.contains('dropdown-menu')) {
+                            parentLi.classList.toggle('active');
+                            subMenu.classList.toggle('hidden');
+                        }
+                    }
+                });
+            });
+
+            // Close mobile menu when a link *inside* the menu is clicked
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    // Only close if it's an actual link (not a dropdown toggle)
+                    if (link.getAttribute('href') !== '#') {
+                        if (window.innerWidth < 768 && !mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                            mobileMenu.classList.remove('flex', 'flex-col', 'items-start', 'absolute', 'top-16', 'left-0', 'bg-[#004AAD]', 'h-[calc(100vh-4rem)]', 'w-full', 'z-50', 'py-4', 'px-6');
+                            // Reset hamburger icon
+                            hamburgerIconPath1.setAttribute('d', 'M4 6h16');
+                            hamburgerIconPath2.setAttribute('d', 'M4 12h16');
+                            hamburgerIconPath3.setAttribute('d', 'M4 18h16');
+                            // Hide all active dropdowns
+                            document.querySelectorAll('#mobile-menu .group.active .dropdown-menu').forEach(menu => {
+                                menu.classList.add('hidden');
+                            });
+                            document.querySelectorAll('#mobile-menu .group.active').forEach(group => {
+                                group.classList.remove('active');
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Reset menu state on resize if switching between mobile/desktop views
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) {
+                    // On desktop, ensure mobile menu is hidden and reset styles
+                    mobileMenu.classList.remove('hidden', 'flex-col', 'items-start', 'absolute', 'top-16', 'left-0', 'bg-[#004AAD]', 'h-[calc(100vh-4rem)]', 'w-full', 'z-50', 'py-4', 'px-6');
+                    mobileMenu.classList.add('flex'); // Ensure it's visible as flex on desktop
+                    
+                    // Reset hamburger icon to default
+                    hamburgerIconPath1.setAttribute('d', 'M4 6h16');
+                    hamburgerIconPath2.setAttribute('d', 'M4 12h16');
+                    hamburgerIconPath3.setAttribute('d', 'M4 18h16');
+
+                    // Ensure all dropdowns are hidden by default (only appear on hover via CSS)
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        menu.classList.add('hidden');
+                    });
+                     document.querySelectorAll('li.group').forEach(group => {
+                        group.classList.remove('active'); // Remove active class
+                    });
+
+                } else {
+                    // On mobile, ensure main menu is hidden and dropdowns are hidden
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.classList.remove('flex');
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        menu.classList.add('hidden');
+                    });
+                    document.querySelectorAll('li.group').forEach(group => {
+                        group.classList.remove('active'); // Remove active class
+                    });
+                    // Reset hamburger icon to default
+                    hamburgerIconPath1.setAttribute('d', 'M4 6h16');
+                    hamburgerIconPath2.setAttribute('d', 'M4 12h16');
+                    hamburgerIconPath3.setAttribute('d', 'M4 18h16');
+                }
+            });
         });
     </script>
 
